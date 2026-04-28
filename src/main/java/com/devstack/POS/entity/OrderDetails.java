@@ -18,6 +18,7 @@ public class OrderDetails {
     @Column(name="order_details_id")
     private UUID id;
 
+    //In many-to-many relationship all many side comes in shared entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="order_id")
     private CustomerOrder customerOrder;
@@ -26,6 +27,9 @@ public class OrderDetails {
     @JoinColumn(name="product_id")
     private Product product;
 
+    //why unit price in both side of product and orderDetails both?
+    //because when after buy order our product price change then we got miss balance matched to prevent that
+    //we calculate invoice using this price
     @Column(name="unit_price")
     private Double unitPrice;
 
