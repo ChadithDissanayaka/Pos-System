@@ -72,9 +72,11 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<StandardResponseDTO> searchProducts(
             @RequestParam(defaultValue = "") String searchText,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        PagedResponseDTO<ProductResponseDTO> result = productService.searchProducts(searchText, page, size);
+        PagedResponseDTO<ProductResponseDTO> result = productService.searchProducts(searchText, minPrice, maxPrice, page, size);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(StandardResponseDTO.builder()

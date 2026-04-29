@@ -13,5 +13,5 @@ public interface ProductService {
     void deleteProduct(UUID id);
     ProductResponseDTO findProductById(UUID id);
     List<ProductResponseDTO> findAll(); // not a best practice
-    PagedResponseDTO<ProductResponseDTO> searchProducts(String searchText, int page, int size);
+    PagedResponseDTO<ProductResponseDTO> searchProducts(String searchText, Double minPrice, Double maxPrice, int page, int size);
 }

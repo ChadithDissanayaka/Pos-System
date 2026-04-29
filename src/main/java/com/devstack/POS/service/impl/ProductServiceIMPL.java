@@ -8,12 +8,13 @@ import com.devstack.POS.exception.EntryNotFoundException;
 import com.devstack.POS.repo.ProductRepo;
 import com.devstack.POS.service.ProductService;
 import com.devstack.POS.util.ProductMapper;
-
 import lombok.RequiredArgsConstructor;
-
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,12 +56,36 @@ public class ProductServiceIMPL implements ProductService {
     }
 
     @Override
-    public PagedResponseDTO<ProductResponseDTO> searchProducts(String searchText, int page, int size) {
-        searchText = "%" + searchText + "%";
+    public PagedResponseDTO<ProductResponseDTO> searchProducts(String searchText, Double minPrice, Double maxPrice, int page, int size) {
+        String normalizedSearch = searchText == null ? "" : searchText.trim();
+        Specification<Product> spec = buildProductSpecification(normalizedSearch, minPrice, maxPrice);
+
         return PagedResponseDTO.<ProductResponseDTO>builder()
-        .dataList(productRepo.findAllProducts(searchText,PageRequest.of(page, size))
-        .stream().map(productMapper::toProductResponseDTO).toList())
-        .dataCount(productRepo.countAllProducts(searchText))
-        .build();
+                .dataList(productRepo.findAll(spec, PageRequest.of(page, size))
+                        .stream().map(productMapper::toProductResponseDTO).toList())
+                .dataCount(productRepo.count(spec))
+                .build();
+    }
+
+    private Specification<Product> buildProductSpecification(String searchText, Double minPrice, Double maxPrice) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (searchText != null && !searchText.isBlank()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("description")),
+                        "%" + searchText.toLowerCase() + "%"));
+            }
+
+            if (minPrice != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("unitPrice"), minPrice));
+            }
+
+            if (maxPrice != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("unitPrice"), maxPrice));
+            }
+
+            return predicates.isEmpty() ? criteriaBuilder.conjunction() : criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }
