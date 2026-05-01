@@ -49,9 +49,9 @@ public class ProductController {
     public ResponseEntity<StandardResponseDTO> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NO_CONTENT)
                 .body(StandardResponseDTO.builder()
-                        .code(200)
+                        .code(204)
                         .message("Product deleted successfully")
                         .data(null)
                         .build());
