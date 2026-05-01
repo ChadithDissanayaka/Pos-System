@@ -56,13 +56,14 @@ public class CustomerServiceIMPL implements CustomerService {
 
     @Override
     public PagedResponseDTO<CustomerResponseDTO> searchCustomers(String searchText, int page, int size) {
-        searchText= "%"+searchText+"%";
+        //searchText= "%"+searchText+"%";// not best practice
+        String text = new StringBuilder().append("%").append(searchText).append("%").toString();
         return PagedResponseDTO.<CustomerResponseDTO>builder()
                 .dataList(
-                        customerRepo.findAllCustomers(searchText, PageRequest.of(page, size))
+                        customerRepo.findAllCustomers(text, PageRequest.of(page, size))
                                 .stream().map(customerMapper::toCustomerResponseDTO).toList())
                 .dataCount(
-                        customerRepo.countAllCustomers(searchText)
+                        customerRepo.countAllCustomers(text)
                 ).build();
     }
 }
