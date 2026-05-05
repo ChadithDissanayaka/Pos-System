@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.UUID;
 @EnableJpaRepositories
 public interface SystemUserRepo extends JpaRepository<SystemUser, UUID> {
-    //SystemUser findByEmail(String email);
+    SystemUser findByEmail(String email);
     boolean existsByEmail(String email);
 }
