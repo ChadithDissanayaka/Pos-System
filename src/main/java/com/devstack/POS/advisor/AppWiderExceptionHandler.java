@@ -1,12 +1,18 @@
 package com.devstack.POS.advisor;
 
+import com.devstack.POS.exception.DuplicateEntryException;
 import com.devstack.POS.exception.EntryNotFoundException;
 import com.devstack.POS.exception.ValidationException;
 import com.devstack.POS.util.StandardResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class AppWiderExceptionHandler {
@@ -31,4 +37,33 @@ public class AppWiderExceptionHandler {
                         .data(ex)
                         .build());
     }
+
+    @ExceptionHandler(DuplicateEntryException.class)
+    public ResponseEntity<StandardResponseDTO> handleEntryDuplicateEntryException(DuplicateEntryException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(StandardResponseDTO.builder()
+                        .code(409)
+                        .message(ex.getMessage())
+                        .data(ex)
+                        .build());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<StandardResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            StandardResponseDTO.builder()
+                .code(400)
+                .message("Validation failed")
+                .data(errors)
+                .build()
+        );
+    }
+    
 }

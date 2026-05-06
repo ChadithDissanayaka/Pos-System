@@ -8,6 +8,7 @@ import com.devstack.POS.util.StandardResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> createProduct(@RequestBody ProductRequestDTO dto) {
         productService.createProduct(dto);
         return ResponseEntity
@@ -32,6 +34,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> updateProduct(
             @RequestBody ProductRequestDTO dto,
             @PathVariable UUID id) {
@@ -46,6 +49,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponseDTO> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity
@@ -58,6 +62,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> findProductById(@PathVariable UUID id) {
         ProductResponseDTO product = productService.findProductById(id);
         return ResponseEntity
@@ -70,6 +75,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     public ResponseEntity<StandardResponseDTO> searchProducts(
             @RequestParam(defaultValue = "") String searchText,
             @RequestParam(required = false) Double minPrice,
@@ -87,6 +93,7 @@ public class ProductController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     public ResponseEntity<StandardResponseDTO> searchProducts() {
         List<ProductResponseDTO> result = productService.findAll();
         return ResponseEntity
