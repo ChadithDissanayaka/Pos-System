@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class CustomerOrderController {
     private final CustomerOrderService customerOrderService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> createOrder(@Valid @RequestBody CustomerOrderRequestDTO dto) {
         customerOrderService.createOrder(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -35,6 +37,7 @@ public class CustomerOrderController {
     }
 
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> getOrderById(@PathVariable UUID orderId) {
         CustomerOrderResponseDTO order = customerOrderService.getOrderById(orderId);
         return ResponseEntity.ok(StandardResponseDTO.builder()
@@ -45,6 +48,7 @@ public class CustomerOrderController {
     }
 
     @GetMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> getOrdersByCustomer(@PathVariable UUID customerId) {
         List<CustomerOrderResponseDTO> orders = customerOrderService.getOrdersByCustomer(customerId);
         return ResponseEntity.ok(StandardResponseDTO.builder()
@@ -55,6 +59,7 @@ public class CustomerOrderController {
     }
 
     @DeleteMapping("/{orderId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponseDTO> deleteOrder(@PathVariable UUID orderId) {
         customerOrderService.deleteOrder(orderId);
         return ResponseEntity.ok(StandardResponseDTO.builder()
@@ -65,6 +70,7 @@ public class CustomerOrderController {
     }
 
     @PutMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<StandardResponseDTO> updateOrder(
             @PathVariable UUID orderId,
             @Valid @RequestBody CustomerOrderRequestDTO dto) {
@@ -77,6 +83,7 @@ public class CustomerOrderController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     public ResponseEntity<StandardResponseDTO> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -89,6 +96,7 @@ public class CustomerOrderController {
     }
 
     @GetMapping("/date-range")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     public ResponseEntity<StandardResponseDTO> getOrdersByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
