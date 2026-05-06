@@ -15,14 +15,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class OrderMapper {
-    public CustomerOrder toCustomerOrder(
-            Customer customer, List<OrderDetailsRequestDTO> details, LocalDate date
-    ) {
+    public CustomerOrder toCustomerOrder(Customer customer, List<OrderDetailsRequestDTO> details, LocalDate date) {
         return CustomerOrder.builder()
                 .customer(customer)
-                .totalCost(
-                        calculate(details)
-                ).date(date).build();
+                .totalCost(calculate(details))
+                .date(date)
+                .build();
     }
 
     public double calculate(List<OrderDetailsRequestDTO> dtos) {
@@ -36,15 +34,12 @@ public class OrderMapper {
     }
 
     public OrderDetails toOrderDetails(CustomerOrder order, Product product, double unitPrice, int qty) {
-        return OrderDetails.builder().customerOrder(
-                order
-        ).product(
-                product
-        ).qty(
-                qty
-        ).unitPrice(
-                unitPrice
-        ).build();
+        return OrderDetails.builder()
+                .customerOrder(order)
+                .product(product)
+                .qty(qty)
+                .unitPrice(unitPrice)
+                .build();
     }
 
     public CustomerOrderResponseDTO toCustomerOrderResponseDTO(CustomerOrder order) {
