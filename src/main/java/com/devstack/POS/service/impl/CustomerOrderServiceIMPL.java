@@ -3,7 +3,7 @@ package com.devstack.POS.service.impl;
 import com.devstack.POS.dto.request.CustomerOrderRequestDTO;
 import com.devstack.POS.dto.request.OrderDetailsRequestDTO;
 import com.devstack.POS.dto.response.CustomerOrderResponseDTO;
-import com.devstack.POS.dto.response.OrderDetailsResponseDTO;
+import com.devstack.POS.dto.response.PagedResponseDTO;
 import com.devstack.POS.entity.Customer;
 import com.devstack.POS.entity.CustomerOrder;
 import com.devstack.POS.entity.OrderDetails;
@@ -17,6 +17,7 @@ import com.devstack.POS.repo.ProductRepo;
 import com.devstack.POS.service.CustomerOrderService;
 import com.devstack.POS.util.OrderMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,15 +70,22 @@ public class CustomerOrderServiceIMPL implements CustomerOrderService {
         CustomerOrder order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new EntryNotFoundException("Order not found with id: " + orderId));
 
-        return mapToResponseDTO(order);
+        return orderMapper.toCustomerOrderResponseDTO(order);
     }
 
     @Override
-    public List<CustomerOrderResponseDTO> getAllOrders() {
-        List<CustomerOrder> orders = orderRepo.findAll();
-        return orders.stream()
-                .map(this::mapToResponseDTO)
+    public PagedResponseDTO<CustomerOrderResponseDTO> getAllOrders(int page, int size) {
+        var pageable = PageRequest.of(page, size);
+        var pageResult = orderRepo.findAll(pageable);
+
+        List<CustomerOrderResponseDTO> orders = pageResult.getContent().stream()
+                .map(orderMapper::toCustomerOrderResponseDTO)
                 .collect(Collectors.toList());
+
+        return PagedResponseDTO.<CustomerOrderResponseDTO>builder()
+                .dataList(orders)
+                .dataCount(pageResult.getTotalElements())
+                .build();
     }
 
     @Override
@@ -88,20 +96,27 @@ public class CustomerOrderServiceIMPL implements CustomerOrderService {
 
         List<CustomerOrder> orders = orderRepo.findByCustomer_Id(customerId);
         return orders.stream()
-                .map(this::mapToResponseDTO)
+                .map(orderMapper::toCustomerOrderResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CustomerOrderResponseDTO> getOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
+    public PagedResponseDTO<CustomerOrderResponseDTO> getOrdersByDateRange(LocalDate startDate, LocalDate endDate, int page, int size) {
         if (startDate.isAfter(endDate)) {
             throw new ValidationException("Start date cannot be after end date");
         }
 
-        List<CustomerOrder> orders = orderRepo.findByDateBetween(startDate, endDate);
-        return orders.stream()
-                .map(this::mapToResponseDTO)
+        var pageable = PageRequest.of(page, size);
+        var pageResult = orderRepo.findByDateBetween(startDate, endDate, pageable);
+
+        List<CustomerOrderResponseDTO> orders = pageResult.getContent().stream()
+                .map(orderMapper::toCustomerOrderResponseDTO)
                 .collect(Collectors.toList());
+
+        return PagedResponseDTO.<CustomerOrderResponseDTO>builder()
+                .dataList(orders)
+                .dataCount(pageResult.getTotalElements())
+                .build();
     }
 
     @Override
@@ -168,28 +183,11 @@ public class CustomerOrderServiceIMPL implements CustomerOrderService {
             }
         }
 
-        return mapToResponseDTO(savedOrder);
+        // Recalculate and update total cost
+        double newTotalCost = orderMapper.calculate(dto.getDetails());
+        savedOrder.setTotalCost(newTotalCost);
+        orderRepo.save(savedOrder);
+        return orderMapper.toCustomerOrderResponseDTO(savedOrder);
     }
 
-    private CustomerOrderResponseDTO mapToResponseDTO(CustomerOrder order) {
-        List<OrderDetailsResponseDTO> details = order.getDetailsList().stream()
-                .map(detail -> OrderDetailsResponseDTO.builder()
-                        .orderDetailsId(detail.getId())
-                        .productId(detail.getProduct().getId())
-                        .productName(detail.getProduct().getDescription())
-                        .unitPrice(detail.getUnitPrice())
-                        .qty(detail.getQty())
-                        .total(detail.getUnitPrice() * detail.getQty())
-                        .build())
-                .collect(Collectors.toList());
-
-        return CustomerOrderResponseDTO.builder()
-                .orderId(order.getOrderId())
-                .customerId(order.getCustomer().getId())
-                .customerName(order.getCustomer().getName())
-                .totalCost(order.getTotalCost())
-                .date(order.getDate())
-                .details(details)
-                .build();
-    }
 }

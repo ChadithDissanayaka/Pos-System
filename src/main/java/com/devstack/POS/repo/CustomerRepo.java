@@ -14,8 +14,8 @@ import java.util.UUID;
 public interface CustomerRepo extends JpaRepository<Customer, UUID> {
 
     @Query(value = "SELECT * FROM customer WHERE name LIKE ?1 OR address LIKE ?1", nativeQuery = true)
-    public Page<Customer> findAllCustomers(String searchText, Pageable pageable);
+    Page<Customer> findAllCustomers(String searchText, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM customer WHERE name LIKE ?1 OR address LIKE ?1", nativeQuery = true)
-    public long countAllCustomers(String searchText);
+    long countAllCustomers(String searchText);
 }

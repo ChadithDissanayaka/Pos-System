@@ -2,6 +2,7 @@ package com.devstack.POS.api;
 
 import com.devstack.POS.dto.request.CustomerOrderRequestDTO;
 import com.devstack.POS.dto.response.CustomerOrderResponseDTO;
+import com.devstack.POS.dto.response.PagedResponseDTO;
 import com.devstack.POS.service.CustomerOrderService;
 import com.devstack.POS.util.StandardResponseDTO;
 import jakarta.validation.Valid;
@@ -43,34 +44,12 @@ public class CustomerOrderController {
                 .build());
     }
 
-    @GetMapping
-    public ResponseEntity<StandardResponseDTO> getAllOrders() {
-        List<CustomerOrderResponseDTO> orders = customerOrderService.getAllOrders();
-        return ResponseEntity.ok(StandardResponseDTO.builder()
-                .code(200)
-                .message("Orders retrieved successfully")
-                .data(orders)
-                .build());
-    }
-
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<StandardResponseDTO> getOrdersByCustomer(@PathVariable UUID customerId) {
         List<CustomerOrderResponseDTO> orders = customerOrderService.getOrdersByCustomer(customerId);
         return ResponseEntity.ok(StandardResponseDTO.builder()
                 .code(200)
                 .message("Customer orders retrieved successfully")
-                .data(orders)
-                .build());
-    }
-
-    @GetMapping("/date-range")
-    public ResponseEntity<StandardResponseDTO> getOrdersByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        List<CustomerOrderResponseDTO> orders = customerOrderService.getOrdersByDateRange(startDate, endDate);
-        return ResponseEntity.ok(StandardResponseDTO.builder()
-                .code(200)
-                .message("Orders retrieved successfully")
                 .data(orders)
                 .build());
     }
@@ -94,6 +73,32 @@ public class CustomerOrderController {
                 .code(200)
                 .message("Order updated successfully")
                 .data(updatedOrder)
+                .build());
+    }
+
+    @GetMapping
+    public ResponseEntity<StandardResponseDTO> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.getAllOrders(page, size);
+        return ResponseEntity.ok(StandardResponseDTO.builder()
+                .code(200)
+                .message("Orders retrieved successfully")
+                .data(orders)
+                .build());
+    }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<StandardResponseDTO> getOrdersByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.getOrdersByDateRange(startDate, endDate, page, size);
+        return ResponseEntity.ok(StandardResponseDTO.builder()
+                .code(200)
+                .message("Orders retrieved successfully")
+                .data(orders)
                 .build());
     }
 }
