@@ -31,7 +31,8 @@ public class ProductServiceIMPL implements ProductService {
 
     @Override
     public void updateProduct(ProductRequestDTO dto, UUID id) {
-        Product product = productRepo.findById(id).orElseThrow(() -> new EntryNotFoundException("Product not found for provided id: " + id));
+        Product product = productRepo.findById(id).orElseThrow(() ->
+                new EntryNotFoundException("Product not found for provided id: " + id));
         product.setDescription(dto.getDescription());
         product.setUnitPrice(dto.getUnitPrice());
         product.setQtyOnHand(dto.getQtyOnHand());  
@@ -46,7 +47,8 @@ public class ProductServiceIMPL implements ProductService {
 
     @Override
     public ProductResponseDTO findProductById(UUID id) {
-        Product product = productRepo.findById(id).orElseThrow(() -> new EntryNotFoundException("Product not found for provided id: " + id));
+        Product product = productRepo.findById(id).orElseThrow(() ->
+                new EntryNotFoundException("Product not found for provided id: " + id));
         return productMapper.toProductResponseDTO(product);
     }
 
