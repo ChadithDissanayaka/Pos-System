@@ -56,6 +56,7 @@ public class JwtUtil {
     public String extractSubject(String token){
         return extractAllClaims(token).getSubject();
     }
+
     public boolean isValid(String token){
         try{
             extractAllClaims(token);
