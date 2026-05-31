@@ -13,9 +13,9 @@ import java.util.UUID;
 @EnableJpaRepositories
 public interface ProductRepo extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     @Query(value = "SELECT * FROM product WHERE description LIKE ?1", nativeQuery = true)
-    public Page<Product> findAllProducts(String searchText, Pageable pageable);
+    Page<Product> findAllProducts(String searchText, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM product WHERE description LIKE ?1", nativeQuery = true)
-    public long countAllProducts(String searchText);
+    long countAllProducts(String searchText);
 
 }
