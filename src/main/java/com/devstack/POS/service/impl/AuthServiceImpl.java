@@ -6,19 +6,21 @@ import com.devstack.POS.dto.response.AuthResponseDTO;
 import com.devstack.POS.entity.ROLE_TYPES;
 import com.devstack.POS.entity.SystemUser;
 import com.devstack.POS.exception.DuplicateEntryException;
-import com.devstack.POS.exception.EntryNotFoundException;
 import com.devstack.POS.repo.SystemUserRepo;
 import com.devstack.POS.service.AuthService;
 import com.devstack.POS.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceIMPL implements AuthService {
+public class AuthServiceImpl implements AuthService {
     private final SystemUserRepo systemUserRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -41,23 +43,21 @@ public class AuthServiceIMPL implements AuthService {
 
     @Override
     public AuthResponseDTO login(LoginRequestDTO dto) {
-        SystemUser user = systemUserRepo.findByEmail(dto.getEmail());
-        if (user == null) {
-            throw new EntryNotFoundException("User not found with email: " + dto.getEmail());
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        dto.getEmail(), dto.getPassword()
+                )
+        );
+        SystemUser systemUser = systemUserRepo.findSystemUserByEmail(dto.getEmail())
+                .orElseThrow(()-> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new EntryNotFoundException("Invalid credentials");
-        }
-
-        String token = jwtUtil.generateAccessToken(user);
-
+        String token = jwtUtil.generateAccessToken(systemUser);
         return AuthResponseDTO.builder()
+                .role(systemUser.getRole().name())
                 .token(token)
                 .tokenType("Bearer")
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole().name())
+                .fullName(systemUser.getFullName())
+                .email(systemUser.getEmail())
                 .build();
     }
 }

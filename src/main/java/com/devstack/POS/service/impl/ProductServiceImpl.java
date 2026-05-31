@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceIMPL implements ProductService {
+public class ProductServiceImpl implements ProductService {
     private final ProductRepo productRepo;
     private final ProductMapper productMapper;
 
