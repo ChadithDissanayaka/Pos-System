@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerOrderServiceIMPL implements CustomerOrderService {
+public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     private final OrderRepo orderRepo;
     private final CustomerRepo customerRepo;
