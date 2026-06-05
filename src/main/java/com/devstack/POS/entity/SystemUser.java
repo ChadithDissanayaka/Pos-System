@@ -22,15 +22,21 @@ public class SystemUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column(nullable = false, length = 100)
     private String fullName;
+
     @Column(nullable = false, unique = true, length = 150)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ROLE_TYPES role;
+    
+    @Builder.Default
     @Column(nullable = false)
     private boolean isActive = true;
 
