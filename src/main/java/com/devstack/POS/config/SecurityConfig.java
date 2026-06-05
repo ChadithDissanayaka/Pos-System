@@ -30,7 +30,12 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String[] paths={"/auth/**"};
+    private static final String[] PUBLIC_PATHS = {
+            "/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTAuthFilter jWTAuthFilter) throws Exception{
@@ -41,7 +46,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers(paths).permitAll()
+                                .requestMatchers(PUBLIC_PATHS).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jWTAuthFilter, UsernamePasswordAuthenticationFilter.class);

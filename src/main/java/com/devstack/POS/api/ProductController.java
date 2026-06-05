@@ -4,7 +4,11 @@ import com.devstack.POS.dto.request.ProductRequestDTO;
 import com.devstack.POS.dto.response.ProductResponseDTO;
 import com.devstack.POS.dto.response.PagedResponseDTO;
 import com.devstack.POS.service.ProductService;
+import com.devstack.POS.config.OpenApiConfig;
 import com.devstack.POS.util.StandardResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +21,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("products")
 @RequiredArgsConstructor
+@Tag(name = "Products", description = "Product management endpoints")
+@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 public class ProductController {
     private final ProductService productService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @Operation(summary = "Create a new product", description = "Requires ADMIN or MANAGER role")
     public ResponseEntity<StandardResponseDTO> createProduct(@RequestBody ProductRequestDTO dto) {
         productService.createProduct(dto);
         return ResponseEntity
@@ -35,6 +42,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @Operation(summary = "Update a product", description = "Requires ADMIN or MANAGER role")
     public ResponseEntity<StandardResponseDTO> updateProduct(
             @RequestBody ProductRequestDTO dto,
             @PathVariable UUID id) {
@@ -50,6 +58,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a product", description = "Requires ADMIN role")
     public ResponseEntity<StandardResponseDTO> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity
@@ -63,6 +72,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @Operation(summary = "Get product by ID", description = "Requires ADMIN or MANAGER role")
     public ResponseEntity<StandardResponseDTO> findProductById(@PathVariable UUID id) {
         ProductResponseDTO product = productService.findProductById(id);
         return ResponseEntity
@@ -76,6 +86,7 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
+    @Operation(summary = "Search products with pagination and filters")
     public ResponseEntity<StandardResponseDTO> searchProducts(
             @RequestParam(defaultValue = "") String searchText,
             @RequestParam(required = false) Double minPrice,
@@ -94,6 +105,7 @@ public class ProductController {
 
     @GetMapping("/list")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
+    @Operation(summary = "Get all products without pagination")
     public ResponseEntity<StandardResponseDTO> searchProducts() {
         List<ProductResponseDTO> result = productService.findAll();
         return ResponseEntity
