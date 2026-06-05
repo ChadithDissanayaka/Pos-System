@@ -5,6 +5,8 @@ import com.devstack.POS.dto.request.RegisterRequestDTO;
 import com.devstack.POS.dto.response.AuthResponseDTO;
 import com.devstack.POS.service.AuthService;
 import com.devstack.POS.util.StandardResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User registration and login endpoints")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new user")
     public ResponseEntity<StandardResponseDTO> register
             (@Valid @RequestBody RegisterRequestDTO dto){
         authService.register(dto);
@@ -34,6 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login and receive a JWT token")
     public ResponseEntity<StandardResponseDTO> login
             (@Valid @RequestBody LoginRequestDTO dto){
         AuthResponseDTO authResponse = authService.login(dto);
