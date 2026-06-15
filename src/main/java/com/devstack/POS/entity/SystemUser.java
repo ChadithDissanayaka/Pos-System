@@ -35,15 +35,15 @@ public class SystemUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ROLE_TYPES role;
-    
+
     @Builder.Default
-    @Column(nullable = false)
-    private boolean isActive = true;
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private Boolean isActive = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
-                new SimpleGrantedAuthority("ROLE_"+role.name())
+                new SimpleGrantedAuthority("ROLE_" + role.name())
         );
     }
 
@@ -69,6 +69,6 @@ public class SystemUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive();
+        return Boolean.TRUE.equals(isActive);
     }
 }
