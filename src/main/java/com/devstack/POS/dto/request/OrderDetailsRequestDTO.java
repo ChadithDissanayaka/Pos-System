@@ -20,6 +20,6 @@ public class OrderDetailsRequestDTO {
 
     @Positive(message = "Unit price must be a positive value")
     @DecimalMin(value = "0.01", message = "Unit Price must be at least 0.01")
-    @DecimalMin(value = "9999999.99", message = "Unit price must not exceed 9,999,999.99")
+    @DecimalMax(value = "9999999.99", message = "Unit price must not exceed 9,999,999.99")
     private double unitPrice;
 }
