@@ -95,11 +95,13 @@ public class CustomerOrderController {
 
         @GetMapping
         @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
-        @Operation(summary = "Get all orders with pagination")
+        @Operation(summary = "Get all orders with pagination and search filter")
         public ResponseEntity<StandardResponseDTO> getAllOrders(
+                        @RequestParam(defaultValue = "") String searchText,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size) {
-                PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.getAllOrders(page, size);
+                PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.searchOrders(searchText, page,
+                                size);
                 return ResponseEntity.ok(StandardResponseDTO.builder()
                                 .code(200)
                                 .message("Orders retrieved successfully")
@@ -117,22 +119,6 @@ public class CustomerOrderController {
                         @RequestParam(defaultValue = "10") int size) {
                 PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.getOrdersByDateRange(startDate,
                                 endDate, page, size);
-                return ResponseEntity.ok(StandardResponseDTO.builder()
-                                .code(200)
-                                .message("Orders retrieved successfully")
-                                .data(orders)
-                                .build());
-        }
-
-        @GetMapping("/search")
-        @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
-        @Operation(summary = "search orders with pagination")
-        public ResponseEntity<StandardResponseDTO> searchOrders(
-                        @RequestParam(defaultValue = "") String searchText,
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "10") int size) {
-                PagedResponseDTO<CustomerOrderResponseDTO> orders = customerOrderService.searchOrders(searchText, page,
-                                size);
                 return ResponseEntity.ok(StandardResponseDTO.builder()
                                 .code(200)
                                 .message("Orders retrieved successfully")

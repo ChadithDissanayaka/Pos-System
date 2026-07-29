@@ -74,6 +74,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponseDTO<CustomerOrderResponseDTO> getAllOrders(int page, int size) {
         var pageable = PageRequest.of(page, size);
         var pageResult = orderRepo.findAll(pageable);
@@ -191,8 +192,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponseDTO<CustomerOrderResponseDTO> searchOrders(String searchText, int page, int size) {
-        String text = "%" + searchText + "%";
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return getAllOrders(page, size);
+        }
+        String text = "%" + searchText.trim() + "%";
         return PagedResponseDTO.<CustomerOrderResponseDTO>builder()
                 .dataList(
                         orderRepo.findAllOrders(text, PageRequest.of(page, size))
