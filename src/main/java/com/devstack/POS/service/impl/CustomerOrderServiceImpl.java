@@ -190,4 +190,16 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         return orderMapper.toCustomerOrderResponseDTO(savedOrder);
     }
 
+    @Override
+    public PagedResponseDTO<CustomerOrderResponseDTO> searchOrders(String searchText, int page, int size) {
+        String text = "%" + searchText + "%";
+        return PagedResponseDTO.<CustomerOrderResponseDTO>builder()
+                .dataList(
+                        orderRepo.findAllOrders(text, PageRequest.of(page, size))
+                                .stream().map(orderMapper::toCustomerOrderResponseDTO).toList())
+                .dataCount(
+                        orderRepo.countAllOrders(text)
+                ).build();
+    }
+
 }
