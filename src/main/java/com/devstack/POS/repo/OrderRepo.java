@@ -26,4 +26,12 @@ public interface OrderRepo extends JpaRepository<CustomerOrder, UUID> {
         @Query("SELECT COUNT(o) FROM CustomerOrder o JOIN o.customer c " +
                 "WHERE LOWER(c.name) LIKE LOWER(:searchText) OR LOWER(CAST(o.orderId AS string)) LIKE LOWER(:searchText)")
         long countAllOrders(@Param("searchText") String searchText);
+
+        @Query("SELECT SUM(o.totalCost) FROM CustomerOrder o")
+        Double findTotalIncome();
+
+        @Query("SELECT DISTINCT YEAR(o.date) FROM CustomerOrder o ORDER BY YEAR(o.date) DESC")
+        List<Integer> findDistinctYears();
+
+        List<CustomerOrder> findByDateBetween(LocalDate startDate, LocalDate endDate);
 }
